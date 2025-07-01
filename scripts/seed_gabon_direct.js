@@ -1,14 +1,14 @@
+require('dotenv').config();
 const mongoose = require('mongoose');
 const Lieu = require('../models/Arret');
 const Ligne = require('../models/Ligne');
 const Horaire = require('../models/Horaire');
 const Perturbation = require('../models/Perturbation');
 
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/transport';
+const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017/transport';
+mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
 async function main() {
-  await mongoose.connect(MONGO_URI);
-
   // 1. Arrêts
   const arretsData = [
     { nom: 'Libreville', localisation: { latitude: 0.3901, longitude: 9.4544 }, description: 'Capitale' },
