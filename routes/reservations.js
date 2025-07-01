@@ -3,6 +3,7 @@ const router = express.Router();
 const { authenticateToken } = require('../middlewares/auth');
 const reservationController = require('../controllers/reservationController');
 const reservationValidator = require('../validators/reservationValidator');
+const Reservation = require('../models/Reservation');
 
 // Créer une réservation
 router.post(
@@ -52,5 +53,22 @@ router.get(
     }
   }
 );
+
+// Route de test : création de réservation sans auth
+router.post('/', async (req, res) => {
+  try {
+    const { transportId, userId, seats, bookingTime } = req.body;
+    const reservation = new Reservation({
+      utilisateur: userId,
+      transport: transportId,
+      seats,
+      bookingTime,
+    });
+    await reservation.save();
+    res.status(201).json(reservation);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 module.exports = router;
