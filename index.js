@@ -41,7 +41,8 @@ app.use((req, res, next) => {
 });
 
 // Connexion à MongoDB
-mongoose.connect(process.env.MONGO_URI)
+const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017/transport';
+mongoose.connect(uri)
   .then(() => console.log('Connecté à MongoDB'))
   .catch((err) => console.error('Erreur de connexion à MongoDB:', err));
 
