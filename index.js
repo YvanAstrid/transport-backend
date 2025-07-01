@@ -10,9 +10,9 @@ const helmet = require('helmet');
 const compression = require('compression');
 const morgan = require('morgan');
 const errorHandler = require('./middlewares/errorHandler');
+const MongoStore = require('connect-mongo');
 
 const app = express();
-const server = http.createServer(app);
 
 // Middlewares de sécurité
 app.use(helmet());
@@ -25,11 +25,20 @@ app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Session configuration
+// Configuration de session avec MongoDB
 app.use(session({
-    secret: process.env.SESSION_SECRET || 'your-secret-key',
-    resave: false,
-    saveUninitialized: true
+  secret: process.env.SESSION_SECRET || 'your-secret-key',
+  resave: false,
+  saveUninitialized: false,
+  store: MongoStore.create({
+    mongoUrl: process.env.MONGODB_URI,
+    ttl: 24 * 60 * 60, // 1 jour
+  }),
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000, // 1 jour
+  }
 }));
 
 // Middlewares globaux
@@ -84,6 +93,45 @@ app.use(errorHandler);
 
 // Démarrage du serveur
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-  console.log(`Serveur backend démarré sur le port ${PORT}`);
+
+// Gestion propre de l'arrêt du processus
+process.on('SIGTERM', () => {
+  console.log('SIGTERM reçu, arrêt propre du serveur...');
+  server.close(() => {
+    console.log('Serveur arrêté proprement');
+    process.exit(0);
+  });
 });
+
+process.on('SIGINT', () => {
+  console.log('SIGINT reçu, arrêt propre du serveur...');
+  server.close(() => {
+    console.log('Serveur arrêté proprement');
+    process.exit(0);
+  });
+});
+
+// Gestion des erreurs non capturées
+process.on('uncaughtException', (err) => {
+  console.error('Erreur non capturée:', err);
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Promesse rejetée non gérée:', reason);
+  process.exit(1);
+});
+
+const server = app.listen(PORT, () => {
+  console.log(`Serveur backend démarré sur le port ${PORT}`);
+  console.log(`Environnement: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`MongoDB URI configuré: ${process.env.MONGODB_URI ? 'Oui' : 'Non'}`);
+});
+
+// Configuration Socket.IO si nécessaire
+// const io = new Server(server, {
+//   cors: {
+//     origin: process.env.CORS_ORIGIN || '*',
+//     credentials: true
+//   }
+// });
