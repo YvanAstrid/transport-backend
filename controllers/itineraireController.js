@@ -1,5 +1,6 @@
 const Ligne = require('../models/Ligne');
 const Arret = require('../models/Arret');
+const calculePrix = require('../utils/calculePrix');
 
 // Recherche d'itinéraire direct entre deux arrêts
 exports.rechercherItineraire = async (req, res) => {
@@ -12,7 +13,12 @@ exports.rechercherItineraire = async (req, res) => {
     const lignes = await Ligne.find({
       arrets: { $all: [departId, arriveeId] }
     }).populate('arrets');
-    res.json(lignes);
+    // Ajouter le prix à chaque ligne
+    const lignesAvecPrix = lignes.map(ligne => {
+      const prix = calculePrix(ligne.distance);
+      return { ...ligne.toObject(), prix };
+    });
+    res.json(lignesAvecPrix);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

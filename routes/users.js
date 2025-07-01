@@ -22,4 +22,6 @@ router.get('/', authenticateToken, authorizeRoles('admin'), async (req, res) => 
   }
 });
 
+router.post('/auth/google', userController.googleAuth);
+
 module.exports = router;

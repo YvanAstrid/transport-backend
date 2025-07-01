@@ -1,13 +1,22 @@
 const Reservation = require('../models/Reservation');
+const Ligne = require('../models/Ligne');
+const calculePrix = require('../utils/calculePrix');
 
 exports.create = async (req, res) => {
   try {
     const { transport, date, destination } = req.body;
+    // Récupérer la ligne pour obtenir la distance
+    const ligne = await Ligne.findById(transport);
+    let prix = 100;
+    if (ligne && ligne.distance) {
+      prix = calculePrix(ligne.distance);
+    }
     const reservation = new Reservation({
       utilisateur: req.user.id,
       transport,
       date,
-      destination
+      destination,
+      prix
     });
     await reservation.save();
     res.status(201).json(reservation);

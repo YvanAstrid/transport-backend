@@ -1,6 +1,8 @@
 const User = require('../models/User');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const { OAuth2Client } = require('google-auth-library');
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 exports.register = async (req, res) => {
   try {
@@ -12,7 +14,16 @@ exports.register = async (req, res) => {
     const hash = await bcrypt.hash(motdepasse, 10);
     const user = new User({ nom, email, motdepasse: hash });
     await user.save();
-    res.status(201).json({ message: 'Utilisateur créé' });
+    const token = jwt.sign(
+      { id: user._id, email: user.email, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+    res.status(201).json({
+      message: 'Utilisateur créé',
+      token,
+      user: { id: user._id, nom: user.nom, email: user.email, role: user.role }
+    });
   } catch (err) {
     res.status(400).json({ message: 'Erreur lors de l\'inscription', error: err.message });
   }
@@ -39,5 +50,37 @@ exports.login = async (req, res) => {
     });
   } catch (err) {
     res.status(500).json({ message: 'Erreur lors de la connexion', error: err.message });
+  }
+};
+
+exports.googleAuth = async (req, res) => {
+  try {
+    const { idToken } = req.body;
+    const ticket = await client.verifyIdToken({
+      idToken,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    const payload = ticket.getPayload();
+    const { email, name } = payload;
+
+    let user = await User.findOne({ email });
+    if (!user) {
+      user = new User({ nom: name, email, motdepasse: 'google-oauth' });
+      await user.save();
+    }
+
+    const token = jwt.sign(
+      { id: user._id, email: user.email, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+
+    res.json({
+      message: 'Connexion Google réussie',
+      token,
+      user: { id: user._id, nom: user.nom, email: user.email, role: user.role }
+    });
+  } catch (err) {
+    res.status(401).json({ message: 'Erreur Google OAuth', error: err.message });
   }
 };
