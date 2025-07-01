@@ -4,7 +4,6 @@ const Ligne = require('../models/Ligne');
 const Horaire = require('../models/Horaire');
 const Perturbation = require('../models/Perturbation');
 
-// Mets ici l'URI de ta base locale ou celle de .env
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/transport';
 
 async function main() {
