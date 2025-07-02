@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema({
   telephone: { type: String },
   role: {
     type: String,
-    enum: ['client', 'chauffeur', 'administrateur'],
+    enum: ['client', 'chauffeur', 'controleur', 'administrateur', 'super_admin'],
     default: 'client'
   },
   status: {
