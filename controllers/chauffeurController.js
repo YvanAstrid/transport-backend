@@ -87,3 +87,13 @@ exports.getAvailableChauffeurs = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+exports.searchChauffeurs = async (req, res) => {
+    try {
+        const { nom } = req.query;
+        const chauffeurs = await Chauffeur.find({ nom: new RegExp(nom, 'i') });
+        res.json(chauffeurs);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};

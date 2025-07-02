@@ -7,5 +7,6 @@ router.get('/:id', arretController.getArretById);
 router.post('/', arretController.createArret);
 router.put('/:id', arretController.updateArret);
 router.delete('/:id', arretController.deleteArret);
+router.get('/search', arretController.searchArrets);
 
 module.exports = router; 

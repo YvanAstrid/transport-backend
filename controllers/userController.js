@@ -90,3 +90,13 @@ exports.googleAuth = async (req, res) => {
     res.status(401).json({ message: 'Erreur Google OAuth', error: err.message });
   }
 };
+
+exports.searchUsers = async (req, res) => {
+  try {
+    const { email } = req.query;
+    const users = await User.find({ email: new RegExp(email, 'i') });
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};

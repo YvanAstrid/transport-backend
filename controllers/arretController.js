@@ -47,4 +47,14 @@ exports.deleteArret = async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
+};
+
+exports.searchArrets = async (req, res) => {
+  try {
+    const { nom } = req.query;
+    const arrets = await Arret.find({ nom: new RegExp(nom, 'i') });
+    res.json(arrets);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 }; 

@@ -76,4 +76,15 @@ exports.deleteLigne = async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
+};
+
+exports.getRoute = async (req, res) => {
+  try {
+    const { start, end } = req.query;
+    // Ajoute ici ta logique de recherche d'itinéraire
+    // Par exemple, trouver les lignes qui commencent à "start" et finissent à "end"
+    res.json({ message: `Recherche d'itinéraire de ${start} à ${end}` });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 }; 

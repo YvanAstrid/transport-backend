@@ -7,5 +7,6 @@ router.get('/:id', ligneController.getLigneById);
 router.post('/', ligneController.createLigne);
 router.put('/:id', ligneController.updateLigne);
 router.delete('/:id', ligneController.deleteLigne);
+router.get('/route', ligneController.getRoute);
 
 module.exports = router; 

@@ -24,4 +24,6 @@ router.get('/', authenticateToken, authorizeRoles('admin'), async (req, res) => 
 
 router.post('/auth/google', userController.googleAuth);
 
+router.get('/search', userController.searchUsers);
+
 module.exports = router;
